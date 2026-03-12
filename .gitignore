@@ -1,0 +1,9 @@
+.vs/
+*.VC.db
+*.VC.opendb
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.nupkg
+packages/
