@@ -84,12 +84,12 @@ MeshletModel build_meshlets(const std::vector<Vertex>& vertices, const std::vect
         out.triangleOffset = m.triangle_offset;
         out.triangleCount = m.triangle_count;
 
-        //out.center = { bounds.center[0],bounds.center[1],bounds.center[2] };
-        //out.radius = bounds.radius;
+        out.center = { bounds.center[0],bounds.center[1],bounds.center[2] };
+        out.radius = bounds.radius;
 
 
-        //out.coneAxis = { bounds.cone_axis[0], bounds.cone_axis[1], bounds.cone_axis[2] };
-        //out.coneCutoff = bounds.cone_cutoff;
+        out.coneAxis = { bounds.cone_axis[0], bounds.cone_axis[1], bounds.cone_axis[2] };
+        out.coneCutoff = bounds.cone_cutoff;
 
         model.data.meshletsInfo.push_back(out);
 

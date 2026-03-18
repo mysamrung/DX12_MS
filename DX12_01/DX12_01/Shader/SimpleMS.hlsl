@@ -1,5 +1,5 @@
 #define ROOT_SIG "CBV(b0), \
-                  RootConstants(b1, num32bitconstants=2), \
+                  CBV(b1), \
                   SRV(t0), \
                   SRV(t1), \
                   SRV(t2), \
@@ -10,12 +10,17 @@ struct Transform
     float4x4 World;
     float4x4 View;
     float4x4 Proj;
+    float4 Planes[6];
+    float4 CameraPos;
 };
 
 struct MeshInfo 
 {
-    uint IndexBytes;
-    uint MeshletOffset;
+    uint IndexSize;
+    uint MeshletCount;
+
+    uint LastMeshletVertCount;
+    uint LastMeshletPrimCount;
 };
 
 struct Vertex 
@@ -47,6 +52,11 @@ struct Meshlet
 
     float3 coneAxis;
     float coneCutoff;
+};
+
+struct Payload
+{
+    uint MeshletIndices[32];
 };
 
 ConstantBuffer<Transform> Globals             : register(b0);
@@ -108,13 +118,17 @@ VertexOut GetVertexAttributes(uint meshletIndex, uint vertexIndex)
 [NumThreads(64, 1, 1)]
 [OutputTopology("triangle")]
 void main(
+    uint dtid : SV_DispatchThreadID,
     uint gtid : SV_GroupThreadID,
     uint gid : SV_GroupID,
+    in payload Payload payload,
     out vertices VertexOut verts[64],
     out indices uint3 tris[126]
 )
 {
-    Meshlet m = Meshlets[MeshInfo.MeshletOffset + gid];
+    uint meshletIndex = payload.MeshletIndices[gid];
+
+    Meshlet m = Meshlets[meshletIndex];
 
     SetMeshOutputCounts(m.VertCount, m.PrimCount);
     

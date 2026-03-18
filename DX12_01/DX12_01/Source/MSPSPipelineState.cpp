@@ -26,6 +26,22 @@ bool MSPSPipelineState::IsValid()
 	return m_IsValid;
 }
 
+void MSPSPipelineState::SetAS(std::wstring filePath)
+{
+	auto hr = D3DReadFileToBlob(filePath.c_str(), m_pAsBlob.GetAddressOf());
+	if (FAILED(hr))
+	{
+		printf("ピクセルシェーダーの読み込みに失敗");
+		return;
+	}
+
+
+	g_Engine->Device()->CreateRootSignature(0, m_pAsBlob->GetBufferPointer(), m_pAsBlob->GetBufferSize(), IID_PPV_ARGS(&m_rootSignature));
+	desc.pRootSignature = m_rootSignature.Get();
+
+	desc.AS = CD3DX12_SHADER_BYTECODE(m_pAsBlob.Get());
+}
+
 void MSPSPipelineState::SetMS(std::wstring filePath)
 {
 	// 頂点シェーダー読み込み
@@ -35,10 +51,6 @@ void MSPSPipelineState::SetMS(std::wstring filePath)
 		printf("頂点シェーダーの読み込みに失敗");
 		return;
 	}
-
-	g_Engine->Device()->CreateRootSignature(0, m_pMsBlob->GetBufferPointer(), m_pMsBlob->GetBufferSize(), IID_PPV_ARGS(&m_rootSignature));
-	desc.pRootSignature = m_rootSignature.Get();
-
 	desc.MS = CD3DX12_SHADER_BYTECODE(m_pMsBlob.Get());
 }
 

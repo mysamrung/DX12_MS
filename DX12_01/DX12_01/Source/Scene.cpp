@@ -92,6 +92,7 @@ bool Scene::Init()
 
 
 	mspsPipelineState = new MSPSPipelineState();
+	mspsPipelineState->SetAS(L"../x64/Debug/SimpleAS.cso");
 	mspsPipelineState->SetMS(L"../x64/Debug/SimpleMS.cso");
 	mspsPipelineState->SetPS(L"../x64/Debug/SimplePSForMs.cso");
 	mspsPipelineState->Create();
@@ -187,13 +188,12 @@ void Scene::Draw()
 
 	for (auto& meshlet : meshletsModel)
 	{
-		commandList->SetGraphicsRoot32BitConstant(1, 4, 0);
+		commandList->SetGraphicsRootConstantBufferView(1, meshlet.MeshInfoResource->GetGPUVirtualAddress());
 		commandList->SetGraphicsRootShaderResourceView(2, meshlet.VertexResources[0]->GetGPUVirtualAddress());
 		commandList->SetGraphicsRootShaderResourceView(3, meshlet.MeshletResource->GetGPUVirtualAddress());
 		commandList->SetGraphicsRootShaderResourceView(4, meshlet.UniqueVertexIndexResource->GetGPUVirtualAddress());
 		commandList->SetGraphicsRootShaderResourceView(5, meshlet.PrimitiveIndexResource->GetGPUVirtualAddress());
 
-		commandList->SetGraphicsRoot32BitConstant(1, 0, 1);
 		commandList->DispatchMesh(meshlet.data.meshlets.size(), 1, 1);
 	}
 
