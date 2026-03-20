@@ -6,8 +6,8 @@ struct VSOutput
 };
 
 
-//SamplerState smp : register(s0); // サンプラー
-//Texture2D _MainTex : register(t0); // テクスチャ
+SamplerState smp : register(s0); // サンプラー
+Texture2D _MainTex : register(t4); // テクスチャ
 
 float4 pixel(VSOutput input) : SV_TARGET
 {

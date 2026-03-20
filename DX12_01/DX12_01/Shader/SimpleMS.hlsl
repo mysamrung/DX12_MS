@@ -1,10 +1,10 @@
 #define ROOT_SIG "CBV(b0), \
-                  CBV(b1), \
-                  SRV(t0), \
-                  SRV(t1), \
-                  SRV(t2), \
-                  SRV(t3)"
-
+                 CBV(b1), \
+                 SRV(t0), \
+                 SRV(t1), \
+                 SRV(t2), \
+                 SRV(t3), \
+                 SRV(t4)"
 struct Transform
 {
     float4x4 World;
@@ -37,6 +37,7 @@ struct VertexOut
     float4 PositionHS   : SV_Position; 
     float3 PositionVS   : POSITION0; 
     float3 Normal       : NORMAL0; 
+    float2 UV           : COLOR0; 
 }; 
 
 struct Meshlet 
@@ -51,7 +52,7 @@ struct Meshlet
     float radius;
 
     float3 coneAxis;
-    float coneCutoff;
+    float coneCutOff;
 };
 
 struct Payload
@@ -109,6 +110,7 @@ VertexOut GetVertexAttributes(uint meshletIndex, uint vertexIndex)
     vout.PositionHS = projPos;
     float3 normalWS = normalize(mul((float3x3)Globals.World, v.Normal));
     vout.Normal = normalWS;
+    vout.UV = v.UV;
 
     return vout;
 }

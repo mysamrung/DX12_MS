@@ -1,9 +1,10 @@
 #define ROOT_SIG "CBV(b0), \
-                  CBV(b1),  \
-                  SRV(t0), \
-                  SRV(t1), \
-                  SRV(t2), \
-                  SRV(t3)"
+                 CBV(b1), \
+                 SRV(t0), \
+                 SRV(t1), \
+                 SRV(t2), \
+                 SRV(t3), \
+                 SRV(t4)"
 
 struct Transform
 {
@@ -51,7 +52,7 @@ struct Meshlet
     float radius;
 
     float3 coneAxis;
-    float coneCutoff;
+    float coneCutOff;
 };
 
 struct Payload
@@ -69,14 +70,6 @@ ByteAddressBuffer           PrimitiveIndices    : register(t3);
 
 groupshared Payload s_Payload;
 
-bool ConeVisible(Meshlet m)
-{
-    float3 view = normalize(Globals.CameraPos - m.center);
-
-    float d = dot(view, m.coneAxis);
-
-    return d >= m.coneCutoff;
-}
 
 bool IsVisible(Meshlet m, float4x4 world, float scale)
 {
@@ -90,11 +83,6 @@ bool IsVisible(Meshlet m, float4x4 world, float scale)
             return false;
         }
     }
-
-    if(!ConeVisible(m))
-        return false;
-
- 
     return true;
 }
 

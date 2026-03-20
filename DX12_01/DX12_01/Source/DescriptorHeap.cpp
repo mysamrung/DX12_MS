@@ -63,5 +63,6 @@ DescriptorHandle* DescriptorHeap::Register(Texture2D* texture)
 	device->CreateShaderResourceView(resource, &desc, pHandle->HandleCPU); // シェーダーリソースビュー作成
 
 	m_pHandles.push_back(pHandle);
+
 	return pHandle; // ハンドルを返す
 }

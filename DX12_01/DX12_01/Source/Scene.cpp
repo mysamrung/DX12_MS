@@ -34,6 +34,7 @@ std::vector<IndexBuffer*> indexBuffers; // メッシュの数分のインデックスバッファ
 
 DescriptorHeap* descriptorHeap;
 std::vector<DescriptorHandle*> materialHandles; // テクスチャ用のハンドル一覧
+std::vector<Texture2D*> texture2D;
 
 std::vector<MeshletModel> meshletsModel;
 
@@ -47,8 +48,8 @@ std::wstring ReplaceExtension(const std::wstring& origin, const char* ext)
 bool Scene::Init()
 {
 	// Constant Buffer
-	auto eyePos = XMVectorSet(0.0f, 120.0, 75.0, 0.0f);
-	auto targetPos = XMVectorSet(0.0f, 120.0, 0.0, 0.0f);
+	auto eyePos = XMVectorSet(0, 120.0, 75.0, 0.0f);
+	auto targetPos = XMVectorSet(0, 120.0, 0.0, 0.0f);
 	auto upward = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f); // 上方向を表すベクトル
 	auto fov = XMConvertToRadians(60.0f); // 視野角
 	auto aspect = static_cast<float>(WINDOW_WIDTH) / static_cast<float>(WINDOW_HEIGHT); // アスペクト比
@@ -67,6 +68,28 @@ bool Scene::Init()
 		ptr->World = XMMatrixIdentity();
 		ptr->View = XMMatrixLookAtRH(eyePos, targetPos, upward);
 		ptr->Proj = XMMatrixPerspectiveFovRH(fov, aspect, 0.3f, 1000.0f);
+
+		auto dummyEye = eyePos + XMVectorSet(0, 0, 0, 0);
+		auto dummyTarget = targetPos + XMVectorSet(0, 0, 0, 0);
+
+		auto dummyView = XMMatrixLookAtRH(dummyEye, dummyTarget, upward);
+		XMMATRIX vp = XMMatrixTranspose(dummyView * ptr->Proj);
+		XMVECTOR planes[6] =
+		{
+			XMPlaneNormalize(vp.r[3] + vp.r[0]), // Left
+			XMPlaneNormalize(vp.r[3] - vp.r[0]), // Right
+			XMPlaneNormalize(vp.r[3] + vp.r[1]), // Bottom
+			XMPlaneNormalize(vp.r[3] - vp.r[1]), // Top
+			XMPlaneNormalize(vp.r[2]),           // Near
+			XMPlaneNormalize(vp.r[3] - vp.r[2]), // Far
+		};
+
+		for (uint32_t i = 0; i < _countof(planes); ++i)
+		{
+			XMStoreFloat4(&ptr->Planes[i], planes[i]);
+		}
+
+		XMStoreFloat4(&ptr->CameraPosition, eyePos);
 	}
 
 	// Root Signature
@@ -159,6 +182,7 @@ bool Scene::Init()
 		auto mainTex = Texture2D::Get(texPath);
 		auto handle = descriptorHeap->Register(mainTex);
 		materialHandles.push_back(handle);
+		texture2D.push_back(mainTex);
 	}
 
 	// Create Meshlet
@@ -193,6 +217,9 @@ void Scene::Draw()
 		commandList->SetGraphicsRootShaderResourceView(3, meshlet.MeshletResource->GetGPUVirtualAddress());
 		commandList->SetGraphicsRootShaderResourceView(4, meshlet.UniqueVertexIndexResource->GetGPUVirtualAddress());
 		commandList->SetGraphicsRootShaderResourceView(5, meshlet.PrimitiveIndexResource->GetGPUVirtualAddress());
+
+		commandList->SetDescriptorHeaps(1, &materialHeap); // 使用するディスクリプタヒープをセット
+		commandList->SetGraphicsRootShaderResourceView(6, texture2D[0]->Resource()->GetGPUVirtualAddress()); // そのメッシュに対応するディスクリプタテーブルをセット
 
 		commandList->DispatchMesh(meshlet.data.meshlets.size(), 1, 1);
 	}

@@ -18,7 +18,8 @@ struct Meshlet
     float radius;
 
     DirectX::XMFLOAT3 coneAxis;
-    float coneCutoff;
+    float coneCutOff;
+
 };
 
 struct MeshletData

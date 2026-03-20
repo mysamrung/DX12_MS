@@ -89,7 +89,15 @@ MeshletModel build_meshlets(const std::vector<Vertex>& vertices, const std::vect
 
 
         out.coneAxis = { bounds.cone_axis[0], bounds.cone_axis[1], bounds.cone_axis[2] };
-        out.coneCutoff = bounds.cone_cutoff;
+        out.coneCutOff = bounds.cone_cutoff;
+        //auto apex = DirectX::XMVectorSet(bounds.cone_apex[0], bounds.cone_apex[1], bounds.cone_apex[2], 0);
+        //auto center = DirectX::XMVectorSet(bounds.center[0], bounds.center[1], bounds.center[2], 0);
+        //auto coneAxis = DirectX::XMVectorSet(bounds.cone_axis[0], bounds.cone_axis[1], bounds.cone_axis[2], 0);
+
+        //apex = DirectX::XMVectorSubtract(apex, center);
+        //out.apex = DirectX::XMVectorGetX(
+        //    DirectX::XMVector3Dot(apex, coneAxis)
+        //);
 
         model.data.meshletsInfo.push_back(out);
 
